@@ -341,6 +341,10 @@ export default function Home() {
 
           const tasksToMigrate =
             legacyTasks.length > 0 ? legacyTasks : initialTasks;
+if (!userId) {
+  console.error('User belum login. Migrasi data dibatalkan.');
+  return;
+}
 
           const migrationData = [];
 
@@ -1798,7 +1802,7 @@ export default function Home() {
             <div className="tk-card-heading">
               <div>
                 <span className="tk-card-eyebrow">Your priorities</span>
-                <h3>Today's focus</h3>
+               <h3>Today&apos;s focus</h3>
                <p>Tasks that need your attention today.</p>
               </div>
 
@@ -1936,7 +1940,7 @@ export default function Home() {
                 A LITTLE REMINDER
               </div>
               <h4>Small steps count.</h4>
-              <p>{dailyQuote} You don't have to do everything at once.</p>
+             <p>{dailyQuote} You don&apos;t have to do everything at once.</p>
             </section>
           </div>
         </div>
