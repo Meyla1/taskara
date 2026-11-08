@@ -32,7 +32,7 @@ export default function AuthPage() {
 
         if (error) throw error;
 
-        router.push('/');
+        router.replace('/');
         router.refresh();
       } else {
         const { data, error } = await supabase.auth.signUp({
@@ -40,54 +40,23 @@ export default function AuthPage() {
           password,
           options: {
             data: { full_name: name },
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
           },
         });
 
         if (error) throw error;
 
         if (data.session) {
-          router.push('/');
+          router.replace('/');
           router.refresh();
         } else {
           setMessage(
-            'Pendaftaran berhasil! Silakan periksa email untuk verifikasi akun.'
+            'Akun berhasil dibuat, tetapi sesi login belum terbentuk. Silakan masuk menggunakan email dan password yang sudah didaftarkan.'
           );
         }
       }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Terjadi kesalahan.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleResendEmail() {
-    setLoading(true);
-    setMessage('');
-    setError('');
-
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) throw error;
-
-      setMessage(
-        'Email verifikasi baru berhasil dikirim. Silakan periksa kotak masuk emailmu.'
-      );
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Gagal mengirim email verifikasi.'
       );
     } finally {
       setLoading(false);
@@ -104,6 +73,7 @@ export default function AuthPage() {
       background: '#F8F7FB',
       fontFamily: 'Arial, sans-serif',
     } as React.CSSProperties,
+
     card: {
       width: '100%',
       maxWidth: '420px',
@@ -112,6 +82,7 @@ export default function AuthPage() {
       borderRadius: '18px',
       boxShadow: '0 8px 35px rgba(60, 45, 100, 0.08)',
     } as React.CSSProperties,
+
     input: {
       width: '100%',
       padding: '13px 14px',
@@ -122,6 +93,7 @@ export default function AuthPage() {
       boxSizing: 'border-box',
       marginTop: '7px',
     } as React.CSSProperties,
+
     label: {
       display: 'block',
       fontSize: '13px',
@@ -208,28 +180,6 @@ export default function AuthPage() {
             <p style={{ color: '#398568', fontSize: '13px' }}>
               {message}
             </p>
-          )}
-
-          {message && !isLogin && (
-            <button
-              type="button"
-              onClick={handleResendEmail}
-              disabled={loading || !email}
-              style={{
-                marginTop: '8px',
-                padding: '8px 0',
-                background: 'none',
-                border: 'none',
-                color: '#8B7FC7',
-                fontWeight: 700,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '13px',
-              }}
-            >
-              {loading
-                ? 'Mengirim...'
-                : 'Kirim ulang email verifikasi'}
-            </button>
           )}
 
           <button
