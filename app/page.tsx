@@ -1751,6 +1751,12 @@ if (!userId) {
           </div>
         </section>
 
+        {showForm && (
+          <section className="tk-card">
+            {renderTaskForm()}
+          </section>
+        )}
+
         <section className="tk-stats">
           <article className="tk-stat">
             <div className="tk-stat-top">
