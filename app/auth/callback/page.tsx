@@ -17,26 +17,51 @@ export default function AuthCallbackPage() {
     started.current = true;
 
     async function completeVerification() {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get('code');
+      try {
+        const url = new URL(window.location.href);
+        const params = url.searchParams;
 
-      if (!code) {
-        setMessage('Kode verifikasi tidak ditemukan. Silakan login kembali.');
-        return;
-      }
+        // Format PKCE: ?code=...
+        const code = params.get('code');
 
-      const { error } =
-        await supabase.auth.exchangeCodeForSession(code);
+        if (code) {
+          const { error } =
+            await supabase.auth.exchangeCodeForSession(code);
 
-      if (error) {
+          if (error) throw error;
+        } else {
+          // Format token: #access_token=...&refresh_token=...
+          const hashParams = new URLSearchParams(
+            url.hash.substring(1)
+          );
+
+          const accessToken = hashParams.get('access_token');
+          const refreshToken = hashParams.get('refresh_token');
+
+          if (accessToken && refreshToken) {
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+
+            if (error) throw error;
+          } else {
+            throw new Error('Kode atau token verifikasi tidak ditemukan.');
+          }
+        }
+
+        // Bersihkan parameter sensitif dari URL.
+        window.history.replaceState({}, document.title, '/auth/callback');
+
+        router.replace('/');
+        router.refresh();
+      } catch (error) {
+        console.error('Auth callback error:', error);
+
         setMessage(
           'Verifikasi gagal atau tautan sudah kedaluwarsa. Silakan minta email verifikasi baru.'
         );
-        return;
       }
-
-      router.replace('/');
-      router.refresh();
     }
 
     completeVerification();
